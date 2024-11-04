@@ -1,0 +1,15 @@
+// This is SINGLE LINE comment !! / // /// //// /* 
+
+/*
+This is multi *
+LINE **
+COMMENT !! ***
+*/
+
+fn main() -> s32
+{
+    a = b + c;
+    a = (b - c);
+    a = b / c;
+    a /= div;
+}
