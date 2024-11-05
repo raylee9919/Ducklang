@@ -8,6 +8,7 @@ COMMENT !! ***
 
 fn main() -> s32
 {
+    var s = "Hello, \"Sailor!\""
     a = b + c;
     a = (b - c);
     a = b / c;

@@ -11,46 +11,7 @@
 
 #include "EMBER_types.h"
 #include "EMBER_utility.cpp"
-
-
-enum Token_Type
-{
-    INVALID = -1,
-    END_OF_FILE,
-
-    LPAREN, RPAREN,
-    LBRACE, RBRACE,
-    LBRACKET,
-    RBRACKET,
-    PLUS, PLUS_PLUS, PLUS_EQUAL,
-    MINUS, MINUS_MINUS, MINUS_EQUAL,
-    STAR, STAR_EQUAL,
-    SLASH, SLASH_EQUAL,
-    PERIOD, COMMA, COLON, SEMICOLON,
-
-    BANG, BANG_EQUAL,
-    EQUAL, EQUAL_EQUAL,
-    GREATER, GREATER_EQUAL,
-    LESS, LESS_EQUAL,
-
-    IDENTIFIER, STRING, NUMBER,
-
-    AND, CLASS, ELSE, FALSE, FN, FOR, IF, NUL, OR,
-    PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
-
-#if _INTERNAL
-    DEBUG_SINGLE_LINE_COMMENT,
-    DEBUG_MULTI_LINE_COMMENT,
-#endif
-};
-
-struct Token
-{
-    Token_Type type;
-    const char *type_literal;
-
-    const char *literal;
-};
+#include "EMBER_token.h"
 
 struct Lexer
 {
@@ -93,6 +54,16 @@ is_digit(char c)
     return result;
 }
 
+inline b32
+is_alphabet_or_underscore_or_digit(char c)
+{
+    b32 result = ( (c >= 'a' && c <= 'z') ||
+                   (c >= 'A' && c <= 'Z') ||
+                   (c == '_') ||
+                   (c >= '0' && c <= '9'));
+    return result;
+}
+
 #define push_token_and_advance(LEXER, TYPE) _push_token_and_advance(LEXER, TYPE, #TYPE)
 static void
 _push_token_and_advance(Lexer *lexer, Token_Type type, const char *type_literal)
@@ -100,6 +71,14 @@ _push_token_and_advance(Lexer *lexer, Token_Type type, const char *type_literal)
     size_t literal_len = (lexer->hi - lexer->lo);
     printf("%.*s (%s)\n", (s32)literal_len, lexer->lo, type_literal);
     lexer->lo = lexer->hi++;
+}
+
+inline char
+peek(Lexer *lexer)
+{
+    char result;
+    result = *lexer->hi;
+    return result;
 }
 
 inline char
@@ -119,14 +98,6 @@ inline void
 advance(Lexer *lexer)
 {
     lexer->lo = lexer->hi++;
-}
-
-inline char
-peek(Lexer *lexer)
-{
-    char result;
-    result = *lexer->hi;
-    return result;
 }
 
 static void
@@ -224,7 +195,7 @@ tokenize(Buffer code)
             {
                 switch (peek_safe(&lx))
                 {
-                    case '/':
+                    case '/': // Single-Line Comment
                     {
                         ++lx.hi;
                         while (lx.hi < lx.end &&
@@ -240,7 +211,7 @@ tokenize(Buffer code)
 #endif
                     } break;
 
-                    case '*':
+                    case '*': // Multi-Line Comment
                     {
                         ++lx.hi;
                         for (;;)
@@ -276,17 +247,34 @@ tokenize(Buffer code)
                 }
             } break;
 
+            case '\"':
+            {
+                while (peek_safe(&lx) != '\"' || *(lx.hi - 1) == '\\')
+                {
+                    ++lx.hi;
+                }
+                ++lx.hi;
+                push_token_and_advance(&lx, STRING);
+            } break;
+
             default:
             {
                 if (is_whitespace(c)) // @NOTE: if you want the info of current line, separate this.
                 {
                     lx.lo = lx.hi++;
                 }
-                else if (is_alphabet_or_underscore(c))
+                else if (is_alphabet_or_underscore(c)) // Identifier
                 {
+                    while (is_alphabet_or_underscore_or_digit(peek(&lx)))
+                    {
+                        ++lx.hi;
+                    }
+
+
                 }
-                else if (is_digit(c))
+                else if (is_digit(c)) // Literal
                 {
+                    lx.lo = lx.hi++;
                 }
                 else
                 {
