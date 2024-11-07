@@ -8,6 +8,12 @@
    $Notice: (C) Copyright 2024 by Sung Woo Lee. All Rights Reserved. $
    ======================================================================== */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "EMBER_types.h"
+
+#define array_length(ARR) (sizeof(ARR)/sizeof(ARR[0]))
+
 static Buffer
 read_entire_file_and_null_terminate(const char *path)
 {

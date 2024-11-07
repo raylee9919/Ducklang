@@ -9,8 +9,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <string>
+#include <unordered_map>
+
 #include "EMBER_types.h"
 #include "EMBER_utility.cpp"
+#include "EMBER_string.cpp"
 #include "EMBER_token.h"
 
 struct Lexer
@@ -33,10 +37,6 @@ is_next_line(char c)
     b32 result = (c == '\r' || c == '\n');
     return result;
 }
-
-#define case_is_alphabet \
-    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u': case 'v': case 'w': case 'x': case 'y': case 'z': \
-    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': case 'W': case 'X': case 'Y': case 'Z'
 
 inline b32
 is_alphabet_or_underscore(char c)
@@ -101,12 +101,28 @@ advance(Lexer *lexer)
 }
 
 static void
+fill_keyword_hashmap(std::unordered_map<std::string, Token_Type> &hashmap)
+{
+    std::string keywords[] = {
+        "and", "or", "for", "if", "else",
+        "s8", "u8", "s16", "u16", "s32", "u32", "s64", "u64",
+        "fn", "string"
+    };
+    for (std::string keyword : keywords) 
+        hashmap[keyword] = Token_Type::KEYWORD;
+}
+
+static void
 tokenize(Buffer code)
 {
     Lexer lx = {};
     lx.lo = (char *)code.data;
     lx.hi = (lx.lo + 1);
     lx.end = ( (char *)code.data + code.size );
+
+    // @TODO: Not a big fan of STL... but for now, it'll do.
+    std::unordered_map<std::string, Token_Type> keyword_hashmap;
+    fill_keyword_hashmap(keyword_hashmap);
 
     b32 should_continue = 1;
 
@@ -270,7 +286,15 @@ tokenize(Buffer code)
                         ++lx.hi;
                     }
 
-
+                    std::string literal(lx.lo, lx.hi - lx.lo);
+                    if (keyword_hashmap.find(literal) != keyword_hashmap.end())
+                    {
+                        push_token_and_advance(&lx, KEYWORD);
+                    }
+                    else
+                    {
+                        push_token_and_advance(&lx, IDENTIFIER);
+                    }
                 }
                 else if (is_digit(c)) // Literal
                 {

@@ -8,7 +8,8 @@ COMMENT !! ***
 
 fn main() -> s32
 {
-    var s = "Hello, \"Sailor!\""
+    string s = "Hello, \"Sailor!\""
+    u8 s32ThisIsVarias64ble = 2;
     a = b + c;
     a = (b - c);
     a = b / c;
