@@ -183,6 +183,12 @@ tokenize(Buffer code)
                         push_token_and_advance(&lx, MINUS_EQUAL);
                     } break;
 
+                    case '>':
+                    {
+                        ++lx.hi;
+                        push_token_and_advance(&lx, RARROW);
+                    } break;
+            
                     default:
                     {
                         push_token_and_advance(&lx, MINUS);
@@ -203,6 +209,40 @@ tokenize(Buffer code)
                     default:
                     {
                         push_token_and_advance(&lx, STAR);
+                    } break;
+                }
+            } break;
+
+            case ':':
+            {
+                switch (peek_safe(&lx))
+                {
+                    case '=':
+                    {
+                        ++lx.hi;
+                        push_token_and_advance(&lx, COLON_EQUAL);
+                    } break;
+
+                    default:
+                    {
+                        push_token_and_advance(&lx, COLON);
+                    } break;
+                }
+            } break;
+
+            case '=':
+            {
+                switch (peek_safe(&lx))
+                {
+                    case '=':
+                    {
+                        ++lx.hi;
+                        push_token_and_advance(&lx, EQUAL_EQUAL);
+                    } break;
+
+                    default:
+                    {
+                        push_token_and_advance(&lx, EQUAL);
                     } break;
                 }
             } break;

@@ -8,10 +8,13 @@ COMMENT !! ***
 
 fn main() -> s32
 {
-    string s = "Hello, \"Sailor!\""
-    u8 s32ThisIsVarias64ble = 2;
+    string s := "Hello, \"Sailor!\""
+    u8 s32ThisIsSTRANGE_Varias64ble := 2;
+    s32 a := 12;
+    s32 b := 19;
+    s32 c := 99;
     a = b + c;
     a = (b - c);
     a = b / c;
-    a /= div;
+    a /= b;
 }
