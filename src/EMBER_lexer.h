@@ -1,5 +1,5 @@
-#ifndef EMBER_TOKEN_H_
-#define EMBER_TOKEN_H_
+#ifndef EMBER_LEXER_H_
+#define EMBER_LEXER_H_
 /* ========================================================================
    $File: $
    $Date: $
@@ -40,9 +40,37 @@ enum Token_Type
 struct Token
 {
     Token_Type type;
-    const char *type_literal;
+    String type_literal;
 
-    const char *literal;
+    String literal;
 };
 
-#endif // EMBER_TOKEN_H_
+struct Token_List
+{
+    Token *base;
+    size_t size; // full bytes.
+    size_t used;
+    size_t count;
+};
+
+static void
+push_token(Token_List *token_list, Token token)
+{
+    size_t new_size = sizeof(Token);
+    ASSERT(token_list->used + new_size <= token_list->size);
+    *(Token *)((u8 *)token_list->base + token_list->used) = token;
+    token_list->used += new_size;
+    ++token_list->count;
+}
+
+struct Lexer
+{
+    char *lo;
+    char *hi;
+    char *end;
+};
+
+
+#endif // EMBER_LEXER_H_
+    
+

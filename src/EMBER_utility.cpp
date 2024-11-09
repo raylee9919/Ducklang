@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "EMBER_types.h"
 
+#define ASSERT(EXP) if (!(EXP)) { *(volatile int *)0 = 0; }
 #define array_length(ARR) (sizeof(ARR)/sizeof(ARR[0]))
 
 static Buffer
@@ -41,13 +42,54 @@ string_length(const char *str)
 {
     size_t len = 0;
     for (const char *c = str;
-         c != 0;
+         *c != 0;
          ++c)
     {
         ++len;
     }
     return len;
 }
+
+inline b32
+is_whitespace(char c)
+{
+    b32 result = (c == ' ' || c == '\t' || c == '\r' || c == '\n');
+    return result;
+}
+
+inline b32
+is_next_line(char c)
+{
+    b32 result = (c == '\r' || c == '\n');
+    return result;
+}
+
+inline b32
+is_alphabet_or_underscore(char c)
+{
+    b32 result = ( (c >= 'a' && c <= 'z') ||
+                   (c >= 'A' && c <= 'Z') ||
+                   (c == '_'));
+    return result;
+}
+
+inline b32
+is_digit(char c)
+{
+    b32 result = (c >= '0' && c<= '9');
+    return result;
+}
+
+inline b32
+is_alphabet_or_underscore_or_digit(char c)
+{
+    b32 result = ( (c >= 'a' && c <= 'z') ||
+                   (c >= 'A' && c <= 'Z') ||
+                   (c == '_') ||
+                   (c >= '0' && c <= '9'));
+    return result;
+}
+
 
 
 

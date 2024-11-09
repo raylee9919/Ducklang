@@ -11,10 +11,9 @@
 
 struct String
 {
-    char *data;
+    const char *data;
     size_t length;
 };
-
 
 
 #endif // EMBER_STRING_H_

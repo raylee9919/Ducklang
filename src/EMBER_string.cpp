@@ -41,3 +41,21 @@ operator != (String &s1, String &s2)
     b32 result = (s1 == s2) ? false : true;
     return result;
 }
+
+inline String
+__String__(const char *_data, size_t _length)
+{
+    String str = {};
+    str.data = _data;
+    str.length = _length;
+    return str;
+}
+
+inline String
+__String__(char *data, size_t length)
+{
+    String str = {};
+    str.data = data;
+    str.length = length;
+    return str;
+}
