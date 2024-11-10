@@ -17,6 +17,37 @@
 #include "EMBER_string.cpp"
 #include "EMBER_lexer.cpp"
 
+struct Parser
+{
+    void init(Token_List *token_list) {
+        tokens = token_list;
+        next_idx = 0;
+    }
+
+    Token eat() {
+        if (next_idx < tokens->count) {
+            return tokens->base[++next_idx];
+        } else {
+            ASSERT(!"Next index exceeded token count!");
+            return {};
+        }
+    }
+
+    Token_List *tokens;
+    s32 next_idx;
+};
+
+static void
+parse(Token_List *token_list)
+{
+    Parser parser;
+    parser.init(token_list);
+
+    while (parser.next_idx< token_list->count)
+    {
+    }
+}
+
 int main(void)
 {
     const char *file_name = "main.ember";
@@ -24,18 +55,21 @@ int main(void)
     if (code.size)
     {
         Token_List token_list = {};
-        token_list.size = sizeof(Token_List) * MB(1);
-        token_list.base = (Token *)malloc(token_list.size);
-        token_list.used = 0;
-        token_list.count = 0;
+        token_list.init(&token_list, MB(1));
+
         if (token_list.base)
         {
             tokenize(code, &token_list);
-            for (u32 idx = 0; idx < token_list.count; ++idx)
+#if 0
+            for (u32 idx = 0;
+                 idx < token_list.count;
+                 ++idx)
             {
                 Token tk = token_list.base[idx];
-                printf("%.*s (%.*s)\n", (s32)tk.literal.length, tk.literal.data, (s32)tk.type_literal.length, tk.type_literal.data);
+                printf("%.*s (%.*s)\n", (s32)tk.literal.length, tk.literal.data,
+                       (s32)tk.type_literal.length, tk.type_literal.data);
             }
+#endif
         }
         else
         {

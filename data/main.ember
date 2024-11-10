@@ -1,21 +1,6 @@
-// This is SINGLE LINE comment !! / // /// //// /* 
-
-/*
-This is multi *
-LINE **
-COMMENT !! ***
-*/
-
-fn main() -> s32
 {
-    string s := "Hello, \"Sailor!\""
-    s32 a := 99; // define via ':='
+    s32 a := 99;
     s32 b := 12;
     s32 c := 19;
-    a = b + c; // assign via '='
-    a = (b - c);
-    a = b / c;
-    a /= b;
-
-    u8 s32ThisIsSTRANGE_Varias64ble := 2;
+    a = b + c / 9;
 }

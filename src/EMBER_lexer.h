@@ -31,7 +31,7 @@ enum Token_Type
 
     KEYWORD, IDENTIFIER, STRING, NUMBER,
 
-#if _INTERNAL
+#if __INTERNAL
     DEBUG_SINGLE_LINE_COMMENT,
     DEBUG_MULTI_LINE_COMMENT,
 #endif
@@ -47,6 +47,7 @@ struct Token
 
 struct Token_List
 {
+    void init(Token_List *token_list, size_t token_count);
     Token *base;
     size_t size; // full bytes.
     size_t used;

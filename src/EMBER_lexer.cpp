@@ -210,7 +210,7 @@ tokenize(Buffer code, Token_List *tokens)
                             ++lx.hi;
                         }
 
-#if _INTERNAL
+#if __INTERNAL
                         push_token_and_advance(&lx, DEBUG_SINGLE_LINE_COMMENT, tokens);
 #else
                         lx.lo = lx.hi++;
@@ -229,7 +229,7 @@ tokenize(Buffer code, Token_List *tokens)
                                     *lx.hi == '/')
                                 {
                                     ++lx.hi;
-#if _INTERNAL
+#if __INTERNAL
                                     push_token_and_advance(&lx, DEBUG_MULTI_LINE_COMMENT, tokens);
 #else
                                     lx.lo = lx.hi++;
@@ -298,4 +298,13 @@ tokenize(Buffer code, Token_List *tokens)
             } break;
         }
     }
+}
+
+void
+Token_List::init(Token_List *token_list, size_t token_count)
+{ 
+    token_list->size = sizeof(Token_List) * token_count;
+    token_list->base = (Token *)malloc(token_list->size);
+    token_list->used = 0;
+    token_list->count = 0;
 }

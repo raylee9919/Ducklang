@@ -1,0 +1,36 @@
+
+
+
+
+
+
+
+
+
+<Parser>
+"Alphabet" = "Tokens" ...is it same as 'atomic'?
+"String" = "Expression"
+
+Finite set of rules -> Finite set of valid strings.
+'Rules' = 'Productions'
+          'Production'
+               /\
+              /  \
+            Head Body
+           (name)  \
+                    \
+          list of 'Symbols'.
+                   'Symbol'
+                      /\
+                     /  \
+                    T   NT
+
+Expression Problem: Row vs Column major?
+                    OOP vs FP
+                    Type vs Operator major?
+                    'Crafting Interpreters' uses 'Visitor Pattern' to resolve.
+
+
+'Precedance' and 'Associativity' are for resolving 'Ambiguity'.
+
+
