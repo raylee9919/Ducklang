@@ -17,6 +17,34 @@
 #include "EMBER_string.cpp"
 #include "EMBER_lexer.cpp"
 
+enum Precedance
+{
+  PREC_NONE,
+
+  PREC_ASSIGNMENT,  // =
+  PREC_OR,          // or
+  PREC_AND,         // and
+  PREC_EQUALITY,    // == !=
+  PREC_COMPARISON,  // < > <= >=
+  PREC_TERM,        // + -
+  PREC_FACTOR,      // * /
+  PREC_UNARY,       // ! -
+  PREC_CALL,        // . ()
+
+  PREC_PRIMARY
+};
+
+static void
+parse_precedance(Precedance precedance)
+{
+}
+
+static void
+expression()
+{
+    parse_precedance(PREC_ASSIGNMENT);
+}
+
 struct Parser
 {
     void init(Token_List *token_list) {

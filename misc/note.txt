@@ -34,3 +34,14 @@ Expression Problem: Row vs Column major?
 'Precedance' and 'Associativity' are for resolving 'Ambiguity'.
 
 
+            Expression
+                /\
+               /  \
+              /    \
+         Symbol ... Symbol
+
+    1. Prefix Expressions
+    e.g. If expression starts with '(', we know we must be looking at a 
+         parenthesized grouping expression. '(', '!' , '-'
+
+    2. Infix Expressions
