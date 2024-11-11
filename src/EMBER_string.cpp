@@ -6,7 +6,6 @@
    $Notice: (C) Copyright 2024 by Sung Woo Lee. All Rights Reserved. $
    ======================================================================== */
 
-#include "EMBER_types.h"
 #include "EMBER_string.h"
 
 static b32

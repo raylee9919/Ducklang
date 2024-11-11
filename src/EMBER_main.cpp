@@ -16,6 +16,7 @@
 #include "EMBER_utility.cpp"
 #include "EMBER_string.cpp"
 #include "EMBER_lexer.cpp"
+#include "EMBER_table.cpp"
 
 enum Precedance
 {
@@ -34,36 +35,26 @@ enum Precedance
   PREC_PRIMARY
 };
 
-static void
-parse_precedance(Precedance precedance)
-{
-}
-
-static void
-expression()
-{
-    parse_precedance(PREC_ASSIGNMENT);
-}
-
 struct Parser
 {
-    void init(Token_List *token_list) {
+    void init(Token_List *token_list) 
+    {
         tokens = token_list;
-        next_idx = 0;
-    }
-
-    Token eat() {
-        if (next_idx < tokens->count) {
-            return tokens->base[++next_idx];
-        } else {
-            ASSERT(!"Next index exceeded token count!");
-            return {};
-        }
+        cur = token_list->base;
+        prev = 0;
     }
 
     Token_List *tokens;
-    s32 next_idx;
+    Token *cur;
+    Token *prev;
 };
+
+inline Parse_Rule
+get_parse_rule(Token_Type token_type)
+{
+    Parse_Rule rule = parse_rule_table[token_type];
+    return rule;
+}
 
 static void
 parse(Token_List *token_list)
@@ -71,8 +62,16 @@ parse(Token_List *token_list)
     Parser parser;
     parser.init(token_list);
 
-    while (parser.next_idx< token_list->count)
+    for (;;) // @TODO: Proper Termination
     {
+        Token_Type token_type = parser.cur->type;
+        Parse_Rule rule = get_parse_rule(token_type);
+        if (rule.infix)
+        {
+        }
+        else if (rule.prefix)
+        {
+        }
     }
 }
 

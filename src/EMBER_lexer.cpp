@@ -8,6 +8,16 @@
 
 #include "EMBER_lexer.h"
 
+static void
+push_token(Token_List *token_list, Token token)
+{
+    size_t new_size = sizeof(Token);
+    ASSERT(token_list->used + new_size <= token_list->size);
+    *(Token *)((u8 *)token_list->base + token_list->used) = token;
+    token_list->used += new_size;
+    ++token_list->count;
+}
+
 #define push_token_and_advance(LEXER, TYPE, CONTAINER) _push_token_and_advance(LEXER, TYPE, #TYPE, CONTAINER)
 static void
 _push_token_and_advance(Lexer *lexer, Token_Type type, const char *type_literal,

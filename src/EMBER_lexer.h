@@ -35,6 +35,8 @@ enum Token_Type
     DEBUG_SINGLE_LINE_COMMENT,
     DEBUG_MULTI_LINE_COMMENT,
 #endif
+
+    TOKEN_TYPE_COUNT,
 };
 
 struct Token
@@ -54,16 +56,6 @@ struct Token_List
     size_t count;
 };
 
-static void
-push_token(Token_List *token_list, Token token)
-{
-    size_t new_size = sizeof(Token);
-    ASSERT(token_list->used + new_size <= token_list->size);
-    *(Token *)((u8 *)token_list->base + token_list->used) = token;
-    token_list->used += new_size;
-    ++token_list->count;
-}
-
 struct Lexer
 {
     char *lo;
@@ -73,5 +65,3 @@ struct Lexer
 
 
 #endif // EMBER_LEXER_H_
-    
-
