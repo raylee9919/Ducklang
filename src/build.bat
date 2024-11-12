@@ -14,5 +14,7 @@ pushd ..\build
 REM MAIN
 cl -Fe:ember_compiler.exe ..\src\EMBER_main.cpp %CCFLAGS% -link %CLFLAGS%
 
+REM VM
+cl -Fe:ember_vm.exe ..\src\vm\VM_main.cpp %CCFLAGS% -link %CLFLAGS%
 
 popd

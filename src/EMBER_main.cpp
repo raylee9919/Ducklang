@@ -13,26 +13,14 @@
 #include <unordered_map>
 
 #include "EMBER_types.h"
+#include "EMBER_buffer.h"
 #include "EMBER_utility.cpp"
 #include "EMBER_string.cpp"
 #include "EMBER_lexer.cpp"
-#include "EMBER_table.cpp"
 
-enum Precedance
+enum Precedence 
 {
-  PREC_NONE,
-
-  PREC_ASSIGNMENT,  // =
-  PREC_OR,          // or
-  PREC_AND,         // and
-  PREC_EQUALITY,    // == !=
-  PREC_COMPARISON,  // < > <= >=
-  PREC_TERM,        // + -
-  PREC_FACTOR,      // * /
-  PREC_UNARY,       // ! -
-  PREC_CALL,        // . ()
-
-  PREC_PRIMARY
+    PREC_NONE,
 };
 
 struct Parser
@@ -49,11 +37,10 @@ struct Parser
     Token *prev;
 };
 
-inline Parse_Rule
-get_parse_rule(Token_Type token_type)
-{
-    Parse_Rule rule = parse_rule_table[token_type];
-    return rule;
+if (is_unary_operator(token)) {
+    new_prec = get_precedence(token);
+} else if {
+
 }
 
 static void
@@ -64,14 +51,6 @@ parse(Token_List *token_list)
 
     for (;;) // @TODO: Proper Termination
     {
-        Token_Type token_type = parser.cur->type;
-        Parse_Rule rule = get_parse_rule(token_type);
-        if (rule.infix)
-        {
-        }
-        else if (rule.prefix)
-        {
-        }
     }
 }
 

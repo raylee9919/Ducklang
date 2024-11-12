@@ -1,5 +1,5 @@
-#ifndef EMBER_TYPES_H_
-#define EMBER_TYPES_H_
+#ifndef VM_TYPES_H_
+#define VM_TYPES_H_
 /* ========================================================================
    $File: $
    $Date: $
@@ -27,5 +27,9 @@ typedef double              f64;
 #define MB(X) (KB(X) << 10LL)
 #define GB(X) (MB(X) << 10LL)
 
+#define global_variable     static
+#define internal            static
+#define local_persistent    static
 
-#endif // EMBER_TYPES_H_
+
+#endif // VM_TYPES_H_

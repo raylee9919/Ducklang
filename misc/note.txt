@@ -45,3 +45,11 @@ Expression Problem: Row vs Column major?
          parenthesized grouping expression. '(', '!' , '-'
 
     2. Infix Expressions
+
+
+
+===============================================================================
+"Parsing expressions by precedence climbing - Eli Bendersky" is really 
+understandable, compared to, so called, the 'Dragon Book'.
+J. Blow and Casey's discussion about precedence is also a gold. It completes 
+the blanked out, but critical part of the understanding.
