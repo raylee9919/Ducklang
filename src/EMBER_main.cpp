@@ -23,35 +23,101 @@ enum Precedence
     PREC_NONE,
 };
 
+
+/*
+1. a + b * c = (a + (b * c))
+
+   +
+  / \
+ a   *
+    / \
+   b   c
+
+Works only on increasing precedence.
+
+2. a * b + c = ((a * b) + c)
+      +
+     / \
+    *   c
+   / \
+  a   b
+
+Works only on decreasing precedence.
+
+3. a > b * c + d = (a > ((b * c) + d))
+    >
+   / \
+  a   +
+     / \
+    *   d
+   / \
+  b   c
+
+4. a + b > c * d = ((a + b) > (c * d))
+     >
+    / \
+   +   *
+  / \ / \
+ a  b c  d
+parse_binary(cur_prec):
+    if identifier or number: return
+    
+*/
+
 struct Parser
 {
-    void init(Token_List *token_list) 
-    {
-        tokens = token_list;
-        cur = token_list->base;
-        prev = 0;
+    void advance() { ++current_token; }
+    Token peek() {
+        Token tk = *(current_token + 1);
+        return tk;
     }
-
-    Token_List *tokens;
-    Token *cur;
-    Token *prev;
+    Token_List *token_list;
+    Token *current_token;
 };
 
-if (is_unary_operator(token)) {
-    new_prec = get_precedence(token);
-} else if {
+static void
+parse_expression(Parser &parser) {
+}
 
+static void
+parse_statement(Parser &parser) {
+    switch (parser.current_token->type) {
+        case Token_Type::IDENTIFIER: {
+        } break;
+
+        case Token_Type::NUMBER: {
+        } break;
+
+        case Token_Type::KEYWORD: {
+            if (parser.current_token->literal == "s32") {
+                if (parser.peek().type == Token_Type::IDENTIFIER) {
+                    parser.advance();
+                    if (parser.peek().type == Token_Type::EQUAL) {
+                        parser.advance();
+                        parse_expression(parser);
+                    } else {
+                        ASSERT(0);
+                    }
+                } else {
+                    ASSERT(0);
+                }
+            } else {
+                ASSERT(0);
+            }
+        } break;
+
+        INVALID_DEFAULT_CASE;
+    }
 }
 
 static void
 parse(Token_List *token_list)
 {
     Parser parser;
-    parser.init(token_list);
+    parser.token_list = token_list;
+    parser.current_token = token_list->base;
 
-    for (;;) // @TODO: Proper Termination
-    {
-    }
+    parse_statement(parser);
 }
 
 int main(void)
@@ -66,6 +132,7 @@ int main(void)
         if (token_list.base)
         {
             tokenize(code, &token_list);
+            parse(&token_list);
 #if 0
             for (u32 idx = 0;
                  idx < token_list.count;

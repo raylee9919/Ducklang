@@ -11,6 +11,8 @@
 #define ASSERT(EXP) if (!(EXP)) { *(volatile int *)0 = 0; }
 #define array_length(ARR) (sizeof(ARR)/sizeof(ARR[0]))
 
+#define INVALID_DEFAULT_CASE default: { ASSERT(0); } break;
+
 static Buffer
 read_entire_file_and_null_terminate(const char *path)
 {

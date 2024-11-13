@@ -1,5 +1,5 @@
-#ifndef VM_UTILITY_H_
-#define VM_UTILITY_H_
+#ifndef EMBER_OPERATION_H_
+#define EMBER_OPERATION_H_
 /* ========================================================================
    $File: $
    $Date: $
@@ -8,9 +8,19 @@
    $Notice: (C) Copyright 2024 by Sung Woo Lee. All Rights Reserved. $
    ======================================================================== */
 
-#define ASSERT(EXP) if (!(EXP)) { *(volatile int *)0 = 0; }
-#define INVALID_DEFAULT_CASE default: { ASSERT(0); } break;
+enum Opcode : unsigned char
+{
+    OP_RETURN,
+    OP_ADD,
+    OP_SUB,
+    OP_MUL,
+};
+
+struct Operation
+{
+    Opcode opcode;
+};
 
 
 
-#endif // VM_UTILITY_H_
+#endif // EMBER_OPERATION_H_

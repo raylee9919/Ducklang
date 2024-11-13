@@ -34,6 +34,38 @@ operator == (String &s1, String &s2)
     return result;
 }
 
+static b32
+operator == (String &str, const char *cstr)
+{
+    b32 result = true;
+
+    size_t cstr_length = string_length(cstr);
+    if (str.length == cstr_length)
+    {
+        for (u32 i = 0; i < cstr_length; ++i)
+        {
+            if (str.data[i] != cstr[i])
+            {
+                result = false;
+                break;
+            }
+        }
+    }
+    else 
+    {
+        result = false;
+    }
+
+    return result;
+}
+
+static b32
+operator != (String &str, const char *cstr)
+{
+    b32 result = !(str == cstr);
+    return result;
+}
+
 inline b32
 operator != (String &s1, String &s2)
 {
