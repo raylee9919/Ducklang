@@ -366,3 +366,32 @@ DEBUG_print_tokens(Token_List *token_list)
     }
 }
 
+static b32
+is_binary_operator(Token token) {
+    return ((token.type == Token_Type::PLUS) ||
+            (token.type == Token_Type::MINUS) ||
+            (token.type == Token_Type::STAR) ||
+            (token.type == Token_Type::SLASH) ||
+            (token.type == Token_Type::LESS) ||
+            (token.type == Token_Type::GREATER));
+}
+
+static s32
+get_precedence(Token token) {
+    s32 result;
+    switch (token.type) {
+        case Token_Type::LESS:
+        case Token_Type::GREATER:{ result = 1; } break;
+
+        case Token_Type::PLUS:
+        case Token_Type::MINUS:{ result = 2; } break;
+
+        case Token_Type::STAR:
+        case Token_Type::SLASH: { result = 3; } break;
+
+        INVALID_DEFAULT_CASE;
+    }
+
+    return result;
+}
+

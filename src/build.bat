@@ -3,7 +3,7 @@
 set CCFLAGS=-std:c++17 -Od -nologo -Z7 -D_CRT_SECURE_NO_WARNINGS
 REM Multithreaded_MSVCRT_DLL, Runtime Type, Exception Handling, Generate Intrinsic Functions
 set CCFLAGS=-MD -GR- -EHa- -Oi %CCFLAGS%
-set CCFLAGS=-W4 -wd4100 -wd4505 -wd4201 %CCFLAGS%
+set CCFLAGS=-W4 -wd4100 -wd4505 -wd4201 -wd4530 %CCFLAGS%
 set CCFLAGS=-D__INTERNAL=0 %CCFLAGS%
 
 set CLFLAGS=-incremental:no
