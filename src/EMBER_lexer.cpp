@@ -55,10 +55,7 @@ peek_safe(Lexer *lexer)
 }
 
 inline void
-advance(Lexer *lexer)
-{
-    lexer->lo = lexer->hi++;
-}
+advance(Lexer *lexer) { lexer->lo = lexer->hi++; }
 
 static void
 fill_keyword_hashmap(std::unordered_map<std::string, Token_Type> &hashmap)
@@ -103,6 +100,7 @@ tokenize(Buffer code, Token_List *tokens)
             case ']': push_token_and_advance(&lx, RBRACKET, tokens); break;
             case '{': push_token_and_advance(&lx, LBRACE, tokens); break;
             case '}': push_token_and_advance(&lx, RBRACE, tokens); break;
+            case ';': push_token_and_advance(&lx, SEMICOLON, tokens); break;
 
             case '+':
             {
@@ -207,6 +205,40 @@ tokenize(Buffer code, Token_List *tokens)
                 }
             } break;
 
+            case '>':
+            {
+                switch (peek_safe(&lx))
+                {
+                    case '=':
+                    {
+                        ++lx.hi;
+                        push_token_and_advance(&lx, GREATER_EQUAL, tokens);
+                    } break;
+
+                    default:
+                    {
+                        push_token_and_advance(&lx, GREATER, tokens);
+                    } break;
+                }
+            } break;
+
+            case '<':
+            {
+                switch (peek_safe(&lx))
+                {
+                    case '=':
+                    {
+                        ++lx.hi;
+                        push_token_and_advance(&lx, LESS_EQUAL, tokens);
+                    } break;
+
+                    default:
+                    {
+                        push_token_and_advance(&lx, LESS, tokens);
+                    } break;
+                }
+            } break;
+
             case '/':
             {
                 switch (peek_safe(&lx))
@@ -227,7 +259,8 @@ tokenize(Buffer code, Token_List *tokens)
 #endif
                     } break;
 
-                    case '*': // Multi-Line Comment
+                    // @TODO: nested multi-line comment.
+                    case '*': // Multi-Line Comment 
                     {
                         ++lx.hi;
                         for (;;)
@@ -296,13 +329,14 @@ tokenize(Buffer code, Token_List *tokens)
                         push_token_and_advance(&lx, IDENTIFIER, tokens);
                     }
                 }
-                else if (is_digit(c)) // Literal
+                else if (is_digit(c)) // Number
                 {
-                    lx.lo = lx.hi++;
+                    while (is_digit(peek_safe(&lx))) { ++lx.hi; }
+                    push_token_and_advance(&lx, NUMBER, tokens);
                 }
                 else
                 {
-                    // @TODO: ERROR
+                    // @TODO: ERROR. But for now, just keep going.
                     lx.lo = lx.hi++;
                 }
             } break;
@@ -318,3 +352,17 @@ Token_List::init(Token_List *token_list, size_t token_count)
     token_list->used = 0;
     token_list->count = 0;
 }
+
+static void
+DEBUG_print_tokens(Token_List *token_list)
+{
+    for (u32 idx = 0;
+         idx < token_list->count;
+         ++idx)
+    {
+        Token tk = token_list->base[idx];
+        printf("%.*s (%.*s)\n", (s32)tk.literal.length, tk.literal.data,
+               (s32)tk.type_literal.length, tk.type_literal.data);
+    }
+}
+

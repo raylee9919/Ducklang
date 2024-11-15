@@ -43,7 +43,6 @@ struct Token
 {
     Token_Type type;
     String type_literal;
-
     String literal;
 };
 

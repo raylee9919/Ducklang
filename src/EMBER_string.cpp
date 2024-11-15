@@ -90,3 +90,21 @@ __String__(char *data, size_t length)
     str.length = length;
     return str;
 }
+
+static s32
+string_to_s32(String str) {
+    s32 result = 0;
+    if (str.data && str.length) {
+        for (s32 idx = 0; idx < str.length; ++idx) {
+            char c = str.data[idx];
+            if (is_digit(c)) {
+                result = result * 10 + (c - '0');
+            } else {
+                ASSERT(0);
+            }
+        }
+    } else {
+        ASSERT(0);
+    }
+    return result;
+}
