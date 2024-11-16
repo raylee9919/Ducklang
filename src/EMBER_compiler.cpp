@@ -304,10 +304,10 @@ parse(Token_List *token_list) {
 }
 
 enum Eval_Type : s32 {
-    ERROR = -1,
+    EVAL_ERROR = -1,
 
-    S32,
-    VAR,
+    EVAL_S32,
+    EVAL_VAR,
 };
 struct Eval_Result {
     Eval_Type type;

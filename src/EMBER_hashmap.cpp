@@ -77,7 +77,7 @@ struct Hashmap {
         if (node != 0) {
             result = node->val;
         } else {
-            result.type = Eval_Type::ERROR;
+            result.type = EVAL_ERROR;
         }
 
         return result;

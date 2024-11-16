@@ -17,6 +17,7 @@
 #include "EMBER_buffer.h"
 #include "EMBER_utility.cpp"
 #include "EMBER_string.cpp"
+#include "EMBER_platform.cpp"
 #include "EMBER_lexer.cpp"
 #include "EMBER_compiler.cpp"
 #include "EMBER_hashmap.cpp"
@@ -72,11 +73,11 @@ eval(Ast_Node *node) {
             Eval_Result l = eval(node->left);
             Eval_Result r = eval(node->right);
 
-            if (l.type == Eval_Type::S32 && l.type == Eval_Type::S32) {
+            if (l.type == EVAL_S32 && l.type == EVAL_S32) {
                 Operation *op = new Operation_Add(l.offset, r.offset);
                 exe.push(op);
 
-                result.type = Eval_Type::S32;
+                result.type = EVAL_S32;
                 result.offset = stack_used;
 
                 stack_used += 4;
@@ -90,15 +91,15 @@ eval(Ast_Node *node) {
             Eval_Result e = eval(node->right);
             Hashmap_Val val;
 
-            if (e.type == Eval_Type::S32) {
-                val.type = Eval_Type::S32;
+            if (e.type == EVAL_S32) {
+                val.type = EVAL_S32;
                 val.offset = stack_used;
                 hashmap.push(name, val);
 
                 Operation *op = new Operation_Push_S32_Off(e.offset);
                 exe.push(op);
 
-                result.type = Eval_Type::S32;
+                result.type = EVAL_S32;
                 result.offset = stack_used;
 
                 stack_used += 4;
@@ -124,7 +125,7 @@ eval(Ast_Node *node) {
         } break;
 
         case AST_S32: {
-            result.type = Eval_Type::S32;
+            result.type = EVAL_S32;
             result.offset = stack_used;
 
             Operation *op = new Operation_Push_S32_Imm((s32)node->int_val);
