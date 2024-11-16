@@ -10,84 +10,82 @@
 #include <stdlib.h>
 
 #include "VM_types.h"
-#include "VM_utility.h"
+#include "VM_buffer.h"
 #include "VM_memory.h"
+#include "VM_utility.h"
 
-#include "../EMBER_operation.h"
-    
-struct Buffer
-{
-    u8 *data;
-    size_t size;
-};
+#include "../SHARED_operation.h"
 
-static Buffer
-read_entire_file_and_null_terminate(Memory_Arena *arena, const char *path)
-{
-    Buffer result = {};
+#define TOTAL_MEMORY GB(1)
+#define read_and_advance(TYPE) *(TYPE *)at; at += sizeof(TYPE);
 
-    FILE *file = fopen(path, "rb");
-    if (file)
-    {
-        fseek(file, 0, SEEK_END);
-        size_t file_size = ftell(file);
-        fseek(file, 0, SEEK_SET);
-
-        result.data = (u8 *)push_size(arena, file_size + 1);
-        result.size = file_size + 1;
-
-        fread(result.data, file_size, 1, file);
-        result.data[file_size] = 0;
+struct Stack {
+    Stack(u32 _cap, Memory_Arena *arena) {
+        base = (u8 *)push_size(arena, _cap);
+        cap = _cap;
+        used = 0;
     }
 
-    return result;
-}
+    void push_s32(s32 val) {
+        ASSERT(used + sizeof(val) <= cap);
+        *(u32 *)(base + used) = val;
+        used += sizeof(val);
+    }
+
+    s32 at(s32 offset) {
+        ASSERT(offset <= (s32)used);
+        return *(s32 *)(base + offset);
+    }
+
+    u8 *base;
+    u32 cap;
+    u32 used;
+};
 
 int main() 
 {
-    Memory_Arena vm_arena;
-    vm_arena.size = GB(1);
-    vm_arena.base = malloc(vm_arena.size);
-    vm_arena.used = 0;
+    void *vm_memory = malloc(TOTAL_MEMORY);
+    Memory_Arena vm_arena(TOTAL_MEMORY, vm_memory);
+    Stack stack( MB(256), &vm_arena );
 
-    const char *src_name = "main.ember";
-    Buffer src = read_entire_file_and_null_terminate(&vm_arena, src_name);
-    if (src.data) 
-    {
-        for (u8 *at = src.data;
-             at < (src.data + src.size);
-             ++at) 
-        {
-            switch (*at++) {
-                case OP_RETURN: {
+    Buffer src = read_entire_file(&vm_arena, bytecode);
+    if (src.data) {
+        for (u8 *at = src.data; at < (src.data + src.size);) {
+            Opcode opcode = *(Opcode *)at;
+            at += sizeof(Opcode);
+            switch (opcode) {
+                case OP_PUSH_S32_IMM: {
+                    s32 val = read_and_advance(s32);
 
+                    stack.push_s32(val);
                 } break;
+
+                case OP_PUSH_S32_OFF: {
+                    s32 offset = read_and_advance(s32);
+
+                    stack.push_s32(stack.at(offset));
+                } break;
+
 
                 case OP_ADD: {
+                    s32 loff = read_and_advance(s32);
+                    s32 roff = read_and_advance(s32);
 
+                    stack.push_s32(stack.at(loff) + stack.at(roff));
                 } break;
 
-                case OP_SUB: {
-
+                case OP_STRING: {
+                    u32 length = read_and_advance(u32);
+                    const char *str = (const char *)at;
+                    at += length;
                 } break;
-
-                case OP_MUL: {
-
-                } break;
-
-
-
-
 
                 INVALID_DEFAULT_CASE
             }
         }
-    } 
-    else 
-    {
-        fprintf(stderr, "ERROR: Couldn't read file %s.\n", src_name);
+    } else {
+        fprintf(stderr, "ERROR: Couldn't read file %s.\n", bytecode);
     }
-
 
     return 0;
 }

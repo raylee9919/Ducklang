@@ -25,8 +25,8 @@ _push_token_and_advance(Lexer *lexer, Token_Type type, const char *type_literal,
 {
     Token token = {};
     token.type = type;
-    token.type_literal = __String__(type_literal, string_length(type_literal));
-    token.literal = __String__(lexer->lo, (lexer->hi - lexer->lo));
+    token.type_literal = _String(type_literal);
+    token.literal = _String(lexer->lo, (lexer->hi - lexer->lo));
 
     push_token(tokens, token);
 
@@ -63,7 +63,8 @@ fill_keyword_hashmap(std::unordered_map<std::string, Token_Type> &hashmap)
     std::string keywords[] = {
         "and", "or", "for", "if", "else",
         "s8", "u8", "s16", "u16", "s32", "u32", "s64", "u64",
-        "fn", "string"
+        "fn", "string", 
+        "print", "quack"
     };
     for (std::string keyword : keywords) 
         hashmap[keyword] = Token_Type::KEYWORD;
@@ -368,7 +369,8 @@ DEBUG_print_tokens(Token_List *token_list)
 
 static b32
 is_binary_operator(Token token) {
-    return ((token.type == Token_Type::PLUS) ||
+    return ((token.type == Token_Type::COLON_EQUAL) ||
+            (token.type == Token_Type::PLUS) ||
             (token.type == Token_Type::MINUS) ||
             (token.type == Token_Type::STAR) ||
             (token.type == Token_Type::SLASH) ||
@@ -380,14 +382,16 @@ static s32
 get_precedence(Token token) {
     s32 result;
     switch (token.type) {
+        case Token_Type::COLON_EQUAL: { result = 1; } break;
+
         case Token_Type::LESS:
-        case Token_Type::GREATER:{ result = 1; } break;
+        case Token_Type::GREATER: { result = 2; } break;
 
         case Token_Type::PLUS:
-        case Token_Type::MINUS:{ result = 2; } break;
+        case Token_Type::MINUS: { result = 3; } break;
 
         case Token_Type::STAR:
-        case Token_Type::SLASH: { result = 3; } break;
+        case Token_Type::SLASH: { result = 4; } break;
 
         INVALID_DEFAULT_CASE;
     }

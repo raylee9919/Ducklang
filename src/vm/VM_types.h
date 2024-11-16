@@ -31,5 +31,7 @@ typedef double              f64;
 #define internal            static
 #define local_persistent    static
 
+#define ASSERT(EXP) if (!(EXP)) { *(volatile int *)0 = 0; }
+#define INVALID_DEFAULT_CASE default: { ASSERT(0); } break;
 
 #endif // VM_TYPES_H_

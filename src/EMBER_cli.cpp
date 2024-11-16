@@ -1,5 +1,3 @@
-#ifndef EMBER_OPERATION_H_
-#define EMBER_OPERATION_H_
 /* ========================================================================
    $File: $
    $Date: $
@@ -8,19 +6,14 @@
    $Notice: (C) Copyright 2024 by Sung Woo Lee. All Rights Reserved. $
    ======================================================================== */
 
-enum Opcode : unsigned char
-{
-    OP_RETURN,
-    OP_ADD,
-    OP_SUB,
-    OP_MUL,
-};
 
-struct Operation
-{
-    Opcode opcode;
-};
+static void
+print_logo() {
+    printf(R"===(
+             
+        __(.)<
+        \___)
+ ~~ Duck Lang. Compiler ~~
 
-
-
-#endif // EMBER_OPERATION_H_
+)===");
+}

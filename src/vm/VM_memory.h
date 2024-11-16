@@ -10,6 +10,12 @@
 
 struct Memory_Arena
 {
+    Memory_Arena(size_t cap, void *_base) {
+        size = cap;
+        base = _base;
+        used = 0;
+    }
+
     void *base;
     size_t size;
     size_t used;

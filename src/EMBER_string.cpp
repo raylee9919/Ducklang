@@ -73,24 +73,6 @@ operator != (String &s1, String &s2)
     return result;
 }
 
-inline String
-__String__(const char *_data, size_t _length)
-{
-    String str = {};
-    str.data = _data;
-    str.length = _length;
-    return str;
-}
-
-inline String
-__String__(char *data, size_t length)
-{
-    String str = {};
-    str.data = data;
-    str.length = length;
-    return str;
-}
-
 static s32
 string_to_s32(String str) {
     s32 result = 0;
@@ -107,4 +89,20 @@ string_to_s32(String str) {
         ASSERT(0);
     }
     return result;
+}
+
+static String
+_String(const char *_data) {
+    String str;
+    str.data = _data;
+    str.length = string_length(_data);
+    return str;
+}
+
+static String
+_String(const char *_data, size_t _length) {
+    String str;
+    str.data = _data;
+    str.length = _length;
+    return str;
 }

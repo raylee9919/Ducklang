@@ -1,4 +1,6 @@
-// s32 a := 1;
-// b := 12;
-13579 > 2 + 158 * 24 + 0;;
-1 + 2 / 3 + 4;
+s32 a := 19;        // Explicit type declaration.
+b := 1 + a + 4;     // Type doesn't have to be explicit in declaration.
+
+//print(a);                       // print() is intrinsic.
+//print("value of b is %.", b);   // Formatting string is easy.
+//quack("a=%, b=%\n", a, b);      // Since it is a duck lang...
