@@ -6,28 +6,26 @@
    $Notice: (C) Copyright 2024 by Sung Woo Lee. All Rights Reserved. $
    ======================================================================== */
 
-#include "EMBER_string.h"
+struct String {
+    const char *data;
+    size_t length;
+};
 
 static b32
-operator == (String &s1, String &s2)
-{
+operator == (String &s1, String &s2) {
     b32 result = true;
 
-    if (s1.length == s2.length)
-    {
+    if (s1.length == s2.length) {
         for (u32 idx = 0;
              idx < s1.length;
              ++idx)
         {
-            if (s1.data[idx] != s2.data[idx])
-            {
+            if (s1.data[idx] != s2.data[idx]) {
                 result = false;
                 break;
             }
         }
-    }
-    else
-    {
+    } else {
         result = false;
     }
 
@@ -35,24 +33,18 @@ operator == (String &s1, String &s2)
 }
 
 static b32
-operator == (String &str, const char *cstr)
-{
+operator == (String &str, const char *cstr) {
     b32 result = true;
 
     size_t cstr_length = string_length(cstr);
-    if (str.length == cstr_length)
-    {
-        for (u32 i = 0; i < cstr_length; ++i)
-        {
-            if (str.data[i] != cstr[i])
-            {
+    if (str.length == cstr_length) {
+        for (u32 i = 0; i < cstr_length; ++i) {
+            if (str.data[i] != cstr[i]) {
                 result = false;
                 break;
             }
         }
-    }
-    else 
-    {
+    } else  {
         result = false;
     }
 
@@ -60,15 +52,13 @@ operator == (String &str, const char *cstr)
 }
 
 static b32
-operator != (String &str, const char *cstr)
-{
+operator != (String &str, const char *cstr) {
     b32 result = !(str == cstr);
     return result;
 }
 
 inline b32
-operator != (String &s1, String &s2)
-{
+operator != (String &s1, String &s2) {
     b32 result = (s1 == s2) ? false : true;
     return result;
 }

@@ -21,6 +21,7 @@
 #include "EMBER_compiler.cpp"
 #include "EMBER_hashmap.cpp"
 #include "EMBER_cli.cpp"
+
 #include "SHARED_operation.h"
 
 struct Exe {

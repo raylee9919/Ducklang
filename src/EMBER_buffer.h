@@ -9,14 +9,12 @@
    ======================================================================== */
 
 
-struct Buffer
-{
+struct Buffer {
     u8 *data;
     size_t size;
 };
 
-struct Buffer_List
-{
+struct Buffer_List {
     Buffer *base;
     size_t count;
 };
