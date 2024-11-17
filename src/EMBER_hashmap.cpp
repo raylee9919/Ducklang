@@ -19,6 +19,7 @@ hash_string(String key) {
 struct Hashmap_Val {
     Eval_Type type;
     s32 offset;
+    u32 length;
 #if 0
     union {
         s32 int_val;

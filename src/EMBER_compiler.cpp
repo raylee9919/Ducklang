@@ -8,6 +8,7 @@
 
 #define DEBUG_min_prec -1219
 
+
 struct Parser {
     Parser(Token_List *_token_list) {
         token_list = _token_list;
@@ -18,32 +19,38 @@ struct Parser {
     Token *next;
 };
 
-enum Ast_Node_Type : u8 {
+enum Ast_Type : u8 {
     AST_STATEMENT,
     AST_BLOCK,
 
-    AST_PRINT,
+    AST_TYPE_Print,
 
     AST_IDENTIFIER,
-    AST_STRING,
+    AST_TYPE_String,
     AST_S32,
 
     AST_BINARY_DECLARE,
-    AST_BINARY_PLUS,
-    AST_BINARY_MINUS,
+    AST_BINARY_ADD,
+    AST_BINARY_SUB,
     AST_BINARY_MUL,
     AST_BINARY_DIV,
     AST_BINARY_GREATER,
     AST_BINARY_LESS,
 };
 
+////////////////////////////////
+// Ast Nodes
+//
+
 struct Ast_Node {
-    Ast_Node_Type type;
+    Ast_Type type;
+    void *data;
+
+    // @TODO: fuck OOP.
     union {
         s64 int_val;
         f32 f32_val;
         f64 f64_val;
-        String str;
         String identifier;
     };
     union {
@@ -54,6 +61,26 @@ struct Ast_Node {
         };
     };
 };
+
+struct Ast_String {
+    String str;
+};
+
+struct Ast_Print {
+    Ast_Node *str;
+    std::vector<Ast_Node *> expressions;
+};
+
+#define new_ast(TYPE) _new_ast(AST_TYPE_##TYPE, sizeof(Ast_##TYPE))
+Ast_Node *_new_ast(Ast_Type type, size_t size) {
+    Ast_Node *result = (Ast_Node *)malloc(sizeof(Ast_Node));
+    result->type = type;
+    result->data = malloc(size);
+    memset(result->data, 0, size);
+    return result;
+}
+
+////////////////////////////////////////
 
 struct Local { 
     Token name;
@@ -79,33 +106,13 @@ static Ast_Node *
 to_operator(Token token) {
     Ast_Node *node = new Ast_Node{};
     switch (token.type) {
-        case Token_Type::COLON_EQUAL: {
-            node->type = AST_BINARY_DECLARE;
-        } break;
-
-        case Token_Type::PLUS: {
-            node->type = AST_BINARY_PLUS;
-        } break;
-
-        case Token_Type::MINUS: {
-            node->type = AST_BINARY_MINUS;
-        } break;
-
-        case Token_Type::STAR: {
-            node->type = AST_BINARY_MUL;
-        } break;
-
-        case Token_Type::SLASH: {
-            node->type = AST_BINARY_DIV;
-        } break;
-
-        case Token_Type::GREATER: {
-            node->type = AST_BINARY_GREATER;
-        } break;
-
-        case Token_Type::LESS: {
-            node->type = AST_BINARY_LESS;
-        } break;
+        case Token_Type::COLON_EQUAL: { node->type = AST_BINARY_DECLARE; } break;
+        case Token_Type::PLUS: { node->type = AST_BINARY_ADD; } break;
+        case Token_Type::MINUS: { node->type = AST_BINARY_SUB; } break;
+        case Token_Type::STAR: { node->type = AST_BINARY_MUL; } break;
+        case Token_Type::SLASH: { node->type = AST_BINARY_DIV; } break;
+        case Token_Type::GREATER: { node->type = AST_BINARY_GREATER; } break;
+        case Token_Type::LESS: { node->type = AST_BINARY_LESS; } break;
 
         INVALID_DEFAULT_CASE;
     }
@@ -128,14 +135,24 @@ parse_leaf(Parser &parser) {
     Ast_Node *node = new Ast_Node{}; // @TODO: mem management
 
     Token tk = *parser.next++;
-    if (tk.type == Token_Type::IDENTIFIER) {
-        node->type = AST_IDENTIFIER;
-        node->identifier = tk.literal;
-    } else if (tk.type == Token_Type::NUMBER) {
-        node->type = AST_S32;
-        node->int_val = string_to_s32(tk.literal);
-    } else {
-        ASSERT(0);
+    switch (tk.type) {
+        case Token_Type::IDENTIFIER: {
+            node->type = AST_IDENTIFIER;
+            node->identifier = tk.literal;
+        } break;
+
+        case Token_Type::NUMBER: {
+            node->type = AST_S32;
+            node->int_val = string_to_s32(tk.literal);
+        } break;
+
+        case Token_Type::STRING: {
+            node = new_ast(String);
+            Ast_String *data= (Ast_String *)node->data;
+            data->str = tk.literal;
+        } break;
+
+        INVALID_DEFAULT_CASE;
     }
 
     return node;
@@ -174,6 +191,7 @@ parse_expression(Parser &parser, s32 min_prec) {
 
     for (;;) {
         if (parser.next->type == Token_Type::SEMICOLON ||
+            parser.next->type == Token_Type::COMMA ||
             parser.next->type == Token_Type::RPAREN) { break; } // @TODO: is it a right place?
         Ast_Node *node = parse_increasing_precedence(parser, left, min_prec);
         if (node == left) { break; }
@@ -206,28 +224,33 @@ parse_block(Parser &parser) {
 
 static Ast_Node *
 parse_print(Parser &parser) {
-    Ast_Node *print = new Ast_Node{};
-    print->type = AST_PRINT;
+    Ast_Node *node = new_ast(Print);
+    Ast_Print *data = (Ast_Print *)node->data;
 
     ++parser.next;
     if (parser.next->type == Token_Type::LPAREN) {
         ++parser.next;
         if (parser.next->type == Token_Type::STRING) {
-            ASSERT(0);
+            // @TODO
+            data->str = parse_leaf(parser);
+            for (;;) {
+                if (parser.next->type == Token_Type::COMMA) {
+                    ++parser.next;
+                    data->expressions.push_back(parse_expression(parser, DEBUG_min_prec));
+                } else break;
+            }
         } else if (parser.next->type == Token_Type::NUMBER) {
-            Ast_Node *l = new Ast_Node{};
-            l->type = AST_STRING;
-            l->str = _String("%");
-            print->left = l;
-            print->right = parse_expression(parser, DEBUG_min_prec);
-            ++parser.next;
+            Ast_Node *l = new_ast(String);
+            Ast_String * s = (Ast_String *)l->data;
+            s->str = _String("%");
+            data->str = l;
+            data->expressions.push_back(parse_expression(parser, DEBUG_min_prec));
         } else if (parser.next->type == Token_Type::IDENTIFIER) {
-            Ast_Node *l = new Ast_Node{};
-            l->type = AST_STRING;
-            l->str = _String("%");
-            print->left = l;
-            print->right = parse_expression(parser, DEBUG_min_prec);
-            ++parser.next;
+            Ast_Node *l = new_ast(String);
+            Ast_String * s = (Ast_String *)l->data;
+            s->str = _String("%");
+            data->str = l;
+            data->expressions.push_back(parse_expression(parser, DEBUG_min_prec));
         } else {
             ASSERT(0);
         }
@@ -241,7 +264,7 @@ parse_print(Parser &parser) {
         ASSERT(0);
     }
 
-    return print;
+    return node;
 }
 
 static Ast_Node *
@@ -303,15 +326,10 @@ parse(Token_List *token_list) {
     return statements;
 }
 
-enum Eval_Type : s32 {
-    EVAL_ERROR = -1,
-
-    EVAL_S32,
-    EVAL_VAR,
-};
 struct Eval_Result {
     Eval_Type type;
     s32 offset;
+    u32 length;
 #if 0
     union {
         s64 int_val;

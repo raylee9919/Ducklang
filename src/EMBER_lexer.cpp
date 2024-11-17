@@ -102,6 +102,7 @@ tokenize(Buffer code, Token_List *tokens)
             case '{': push_token_and_advance(&lx, LBRACE, tokens); break;
             case '}': push_token_and_advance(&lx, RBRACE, tokens); break;
             case ';': push_token_and_advance(&lx, SEMICOLON, tokens); break;
+            case ',': push_token_and_advance(&lx, COMMA, tokens); break;
 
             case '+':
             {
@@ -299,8 +300,7 @@ tokenize(Buffer code, Token_List *tokens)
 
             case '\"':
             {
-                while (peek_safe(&lx) != '\"' || *(lx.hi - 1) == '\\')
-                {
+                while (peek_safe(&lx) != '\"' || *(lx.hi - 1) == '\\') { // @TODO: WROOOONNGGGGG
                     ++lx.hi;
                 }
                 ++lx.hi;

@@ -19,11 +19,11 @@
 #include "EMBER_string.cpp"
 #include "EMBER_platform.cpp"
 #include "EMBER_lexer.cpp"
+#include "SHARED_operation.h"
 #include "EMBER_compiler.cpp"
 #include "EMBER_hashmap.cpp"
 #include "EMBER_cli.cpp"
 
-#include "SHARED_operation.h"
 
 struct Exe {
     void push(Operation *op) {
@@ -61,24 +61,89 @@ eval(Ast_Node *node) {
             if (node->child) eval(node->child);
         } break;
 
-        case AST_PRINT: {
-            Eval_Result str  = eval(node->left);
-            Eval_Result expr = eval(node->right);
+        case AST_TYPE_Print: {
+            Ast_Print *data = (Ast_Print *)node->data;
+            Eval_Result str = eval(data->str);
+            u32 expr_count = (u32)data->expressions.size();
 
-            Operation *op = new Operation_Print(str.offset, expr.type, expr.offset);
+            Type_Offset *type_offset = (Type_Offset *)malloc(expr_count*sizeof(Type_Offset));
+            Type_Offset *at = type_offset;
+            for (Ast_Node *expr : data->expressions) {
+                Eval_Result res = eval(expr);
+                at->type    = res.type;
+                at->offset  = res.offset;
+                ++at;
+            }
+
+            Operation *op = new Operation_Print(str.offset, str.length, expr_count, type_offset);
             exe.push(op);
         } break;
 
-        case AST_BINARY_PLUS: {
+        case AST_BINARY_ADD: {
             Eval_Result l = eval(node->left);
             Eval_Result r = eval(node->right);
 
             if (l.type == EVAL_S32 && l.type == EVAL_S32) {
-                Operation *op = new Operation_Add(l.offset, r.offset);
+                Operation *op = new Operation_ADD(l.offset, r.offset);
                 exe.push(op);
 
-                result.type = EVAL_S32;
-                result.offset = stack_used;
+                result.type     = EVAL_S32;
+                result.offset   = stack_used;
+                result.length   = 4;
+
+                stack_used += 4;
+            } else {
+                ASSERT(0);
+            }
+        } break;
+
+        case AST_BINARY_SUB: {
+            Eval_Result l = eval(node->left);
+            Eval_Result r = eval(node->right);
+
+            if (l.type == EVAL_S32 && l.type == EVAL_S32) {
+                Operation *op = new Operation_SUB(l.offset, r.offset);
+                exe.push(op);
+
+                result.type     = EVAL_S32;
+                result.offset   = stack_used;
+                result.length   = 4;
+
+                stack_used += 4;
+            } else {
+                ASSERT(0);
+            }
+        } break;
+
+        case AST_BINARY_MUL: {
+            Eval_Result l = eval(node->left);
+            Eval_Result r = eval(node->right);
+
+            if (l.type == EVAL_S32 && l.type == EVAL_S32) {
+                Operation *op = new Operation_MUL(l.offset, r.offset);
+                exe.push(op);
+
+                result.type     = EVAL_S32;
+                result.offset   = stack_used;
+                result.length   = 4;
+
+                stack_used += 4;
+            } else {
+                ASSERT(0);
+            }
+        } break;
+
+        case AST_BINARY_DIV: {
+            Eval_Result l = eval(node->left);
+            Eval_Result r = eval(node->right);
+
+            if (l.type == EVAL_S32 && l.type == EVAL_S32) {
+                Operation *op = new Operation_DIV(l.offset, r.offset);
+                exe.push(op);
+
+                result.type     = EVAL_S32;
+                result.offset   = stack_used;
+                result.length   = 4;
 
                 stack_used += 4;
             } else {
@@ -92,15 +157,17 @@ eval(Ast_Node *node) {
             Hashmap_Val val;
 
             if (e.type == EVAL_S32) {
-                val.type = EVAL_S32;
-                val.offset = stack_used;
+                val.type    = EVAL_S32;
+                val.offset  = stack_used;
+                val.length  = 4;
                 hashmap.push(name, val);
 
                 Operation *op = new Operation_Push_S32_Off(e.offset);
                 exe.push(op);
 
-                result.type = EVAL_S32;
-                result.offset = stack_used;
+                result.type     = EVAL_S32;
+                result.offset   = stack_used;
+                result.length   = 4;
 
                 stack_used += 4;
             } else {
@@ -118,15 +185,23 @@ eval(Ast_Node *node) {
         } break;
 #endif
 
-        case AST_STRING: {
-            String str = node->str;
-            Operation *op = new Operation_String((u32)str.length, str.data);
+        case AST_TYPE_String: {
+            Ast_String *data = (Ast_String *)node->data;
+            String str = data->str;
+            result.type = EVAL_STRING;
+            result.offset = stack_used;
+            result.length = (u32)str.length;
+
+            Operation *op = new Operation_Push_String((u32)str.length, str.data);
             exe.push(op);
+
+            stack_used += (u32)str.length;
         } break;
 
         case AST_S32: {
-            result.type = EVAL_S32;
-            result.offset = stack_used;
+            result.type     = EVAL_S32;
+            result.offset   = stack_used;
+            result.length   = 4;
 
             Operation *op = new Operation_Push_S32_Imm((s32)node->int_val);
             exe.push(op);
@@ -136,8 +211,9 @@ eval(Ast_Node *node) {
 
         case AST_IDENTIFIER: {
             Hashmap_Val hash = hashmap.get(node->identifier);
-            result.type = hash.type;
-            result.offset = hash.offset;
+            result.type     = hash.type;
+            result.offset   = hash.offset;
+            result.length   = hash.length;
             ASSERT(result.offset != -1);
         } break;
 
@@ -170,7 +246,7 @@ int main(int argc, char **argv) {
 
 
             if (!exe.write_to_file(bytecode)) {
-                printf("Build done in %.4fs.\n", build_time);
+                printf("\nBuild done in %.6fs.\n", build_time);
                 return 0;
             } else {
                 fprintf(stderr, "ERROR: Couldn't write to file %s.\n", bytecode);

@@ -11,8 +11,8 @@ static void
 print_logo() {
     printf(R"===(
              
-        __(.)<
-        \___)
+          __(.)<
+          \___)
  ~~ Duck Lang. Compiler ~~
 
 )===");
