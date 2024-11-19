@@ -224,7 +224,7 @@ eval(Ast_Node *node) {
 }
 
 int main(int argc, char **argv) {
-    f32 build_time = 0.0f;
+    u64 begin_timer = get_os_timer();
     print_logo();
 
     const char *file_name = argv[1];
@@ -246,7 +246,9 @@ int main(int argc, char **argv) {
 
 
             if (!exe.write_to_file(bytecode)) {
-                printf("\nBuild done in %.6fs.\n", build_time);
+                u64 end_timer = get_os_timer();
+                f32 build_time = ((f32)(end_timer - begin_timer) / (f32)get_os_timer_frequency());
+                printf("\nBuild done in %.5f seconds.\n", build_time);
                 return 0;
             } else {
                 fprintf(stderr, "ERROR: Couldn't write to file %s.\n", bytecode);
